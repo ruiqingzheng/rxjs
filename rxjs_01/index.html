@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="./rxjs.umd.min.js"></script>
+    <title>Document</title>
+  </head>
+  <body>
+    <label for="height">
+      height:
+      <input type="text" name="height" id="height" />
+    </label>
+
+    <div style="margin-top: 100px; width: 100%; height: 200px; font-size: 30px; font-weight: bold; display: flex; justify-content: center; align-items: center">
+      <p id="counter">0</p>
+    </div>
+
+    <script>
+      // sample 1
+      const height = document.getElementById('height')
+      const height$ = rxjs.fromEvent(height, 'keyup')
+      height$.subscribe((val) => console.log(val))
+
+      // sample 2
+      const counter = document.getElementById('counter')
+      const updateCounter = (_count) => (counter.innerText = _count)
+
+      // old way
+      // let count = 0
+      // document.addEventListener('click', () => {
+      //   console.log(`Clicked ${++count} times`)
+      //   updateCounter(count)
+      // })
+
+      // rxjs way
+
+      // rxjs
+      //   .fromEvent(document, 'click')
+      //   .pipe(rxjs.scan((count) => count + 1, 0))
+      //   .subscribe((count) => {
+      //     console.log('count :>> ', count)
+      //     updateCounter(count)
+      //   })
+
+      // sample 3
+      // 必须点击时间间隔大于1秒才执行一些操作
+      // let count = 0
+      // let rate = 1000
+      // let lastClickTime = Date.now() - rate
+      // document.addEventListener('click', () => {
+      //   if(Date.now() - lastClickTime > rate) {
+      //     console.log('count :>> ', count++);
+      //     lastClickTime = Date.now()
+      //   }
+      // })
+
+      // rxjs
+
+      // rxjs.fromEvent(document, 'click').pipe(
+      //   rxjs.throttleTime(1000),
+      //   rxjs.scan((count) => count + 1 , 0)
+      // ).subscribe(count => {
+      //   console.log('count:>> ',count);
+      // })
+
+      // sample 4
+
+      const { fromEvent, map, scan, pipe, throttleTime, subscribe } = rxjs
+
+      fromEvent(document, 'click')
+        .pipe(
+          throttleTime(1000),
+          map((event) => event.clientX),
+          // scan((count, clientX) => count + clientX, 0)
+          scan((count, clientX) => {
+            count = clientX + count
+            return count
+          }, 0)
+        )
+        .subscribe((count) => console.log('count: ', count))
+    </script>
+  </body>
+</html>
